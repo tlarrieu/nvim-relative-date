@@ -14,9 +14,9 @@ local buf_scoped_attached_variable_name = "nvim_relative_date_attached"
 ---@param bufnr integer
 ---@param start_line integer 1-based, inclusive
 ---@param end_line integer 1-based, inclusive
----@param highlight_group string Name of the highlight group to use
+---@param highlight_groups table<string, string> Name of the highlight groups to use
 ---@param current_osdate osdate
-function M.show_relative_dates_in_line_range(bufnr, start_line, end_line, highlight_group, current_osdate)
+function M.show_relative_dates_in_line_range(bufnr, start_line, end_line, highlight_groups, current_osdate)
 	vim.api.nvim_buf_clear_namespace(bufnr, namespace_id, start_line - 1, end_line)
 
 	local visible_buffer_lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, true)
@@ -36,14 +36,27 @@ function M.show_relative_dates_in_line_range(bufnr, start_line, end_line, highli
 
 			local target_date = os.date("*t", os.time({ year = year_str, month = month_str, day = day_str })) --[[@as osdate]]
 
+			local nextdate = os.time({ year = year_str, month = month_str, day = day_str })
+			local curdate = os.time()
+			local diff = os.difftime(nextdate, curdate) / (24 * 60 * 60)
+
 			local target_relative_date = relative_date.get_relative_date(current_osdate, target_date)
+
+			local highlight_group
+			if target_relative_date == 'today' then
+				highlight_group = highlight_groups.today
+			elseif diff < 0 then
+				highlight_group = highlight_groups.late
+			elseif diff > 0 then
+				highlight_group = highlight_groups.early
+			end
 
 			if target_relative_date ~= nil then
 				-- 0-based
 				local line_nr = (start_line - 1) + (line_index - 1)
 				vim.api.nvim_buf_set_extmark(bufnr, namespace_id, line_nr, end_column, {
 					virt_text = {
-						{ string.format(" (%s)", target_relative_date), highlight_group },
+						{ string.format(" ( %s)", target_relative_date), highlight_group },
 					},
 					virt_text_pos = "inline",
 					right_gravity = false,

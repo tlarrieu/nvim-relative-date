@@ -3,7 +3,7 @@
 ---was scrolled and the plugin should update the dates in the buffer.
 ---@field debounce_ms integer?
 ---Highlight group to use for the inline text
----@field highlight_group string?
+---@field highlight_groups table<string, string>?
 ---Filetypes to consider enabling this plugin in.
 ---For each buffer with this filetype, `should_attach_to_buffer` will
 ---be executed to determine if the plugin should attach to that buffer.
@@ -20,14 +20,18 @@
 
 ---@class nvim_relative_date.FullConfig
 ---@field debounce_ms integer
----@field highlight_group string
+---@field highlight_groups table<string, string>
 ---@field filetypes string[]
 ---@field should_attach_to_buffer fun(bufnr: integer): boolean
 
 ---@type nvim_relative_date.FullConfig
 local default_config = {
 	debounce_ms = 100,
-	highlight_group = "Comment",
+	highlight_groups = {
+    early = "DiffAdd",
+    late = "DiffRemove",
+    today = "DiffChange",
+	},
 	filetypes = { "markdown" },
 	should_attach_to_buffer = function(bufnr)
 		return vim.bo[bufnr].buftype == ""

@@ -38,7 +38,7 @@ local function show_relative_dates(bufnr)
 			bufnr,
 			start_line,
 			end_line,
-			current_config.highlight_group,
+			current_config.highlight_groups,
 			current_osdate
 		)
 	end

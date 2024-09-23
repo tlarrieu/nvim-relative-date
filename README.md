@@ -56,9 +56,9 @@ The `setup()` method accepts the following configuration options:
 
   Default: `100`
 
-- `highlight_group` (`string`) - highlight group to use for the inline text
+- `highlight_groups` (`table<string, string>`) - highlight group to use for the inline text
 
-  Default: `Comment`
+  Default: `{ early = "DiffAdd", late = "DiffRemove", today = "DiffChange" }`
 
 - `filetypes` (`string[]`) - filetypes to consider enabling this plugin in. For
   each buffer with this filetype, `should_attach_to_buffer` will be executed to
