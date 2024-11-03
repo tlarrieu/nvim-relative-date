@@ -16,7 +16,7 @@ local buf_scoped_attached_variable_name = "nvim_relative_date_attached"
 ---@param end_line integer 1-based, inclusive
 ---@param highlight_groups table<string, string> Name of the highlight groups to use
 ---@param current_osdate osdate
-function M.show_relative_dates_in_line_range(bufnr, start_line, end_line, highlight_groups, current_osdate)
+function M.show_relative_dates_in_line_range(bufnr, start_line, end_line, format, highlight_groups, current_osdate)
 	vim.api.nvim_buf_clear_namespace(bufnr, namespace_id, start_line - 1, end_line)
 
 	local visible_buffer_lines = vim.api.nvim_buf_get_lines(bufnr, start_line - 1, end_line, true)
@@ -26,8 +26,7 @@ function M.show_relative_dates_in_line_range(bufnr, start_line, end_line, highli
 
 		while true do
 			-- 1-based, inclusive
-			local start_column, end_column, year_str, month_str, day_str =
-				line:find(iso_date_pattern, match_start_index)
+			local start_column, end_column, year_str, month_str, day_str = line:find(iso_date_pattern, match_start_index)
 			if start_column == nil or end_column == nil then
 				break
 			end
@@ -51,12 +50,14 @@ function M.show_relative_dates_in_line_range(bufnr, start_line, end_line, highli
 				highlight_group = highlight_groups.early
 			end
 
+			local fmt = format or " ( %s)"
+
 			if target_relative_date ~= nil then
 				-- 0-based
 				local line_nr = (start_line - 1) + (line_index - 1)
 				vim.api.nvim_buf_set_extmark(bufnr, namespace_id, line_nr, end_column, {
 					virt_text = {
-						{ string.format(" ( %s)", target_relative_date), highlight_group },
+						{ string.format(fmt, target_relative_date), highlight_group },
 					},
 					virt_text_pos = "inline",
 					right_gravity = false,
